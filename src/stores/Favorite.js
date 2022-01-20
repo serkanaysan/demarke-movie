@@ -1,23 +1,20 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-export const favorite = createSlice({
+export const favoriteSlice = createSlice({
     name: 'favorite',
     initialState: {
-        value: 1
+        value: window.localStorage.getItem('favorites') || [],
     },
     reducers: {
-        increment: state => {
+        add: state => {
             state.value += 1
         },
-        decrement: state => {
-            state.value -= 1
-        },
-        incrementByAmount: (state, action) => {
+        removeById: (state, action) => {
             state.value += action.payload
         }
     }
 })
 
-export const { increment, decrement, incrementByAmount } = favorite.actions
+export const { increment, decrement, incrementByAmount } = favoriteSlice.actions
 
-export default favorite.reducer
+export default favoriteSlice.reducer
