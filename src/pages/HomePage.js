@@ -1,33 +1,67 @@
-import React from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { Header } from '../components/commons'
-
-import store from '../stores'
-import { increment, decrement, incrementByAmount } from '../stores/Favorite'
+import React, { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
+import { Header, Card, Sidebar, Loading, Error } from '../components/commons'
 
 const HomePage = ({ }) => {
+    const [visibleSidebar, setVisibleSidebar] = useState(false)
+    const [movieList, setMovieList] = useState(null)
+    const [loading, setLoading] = useState(null)
+    const [error, setError] = useState(true)
+    
+    const showFavorites = useSelector(state => state?.favorite?.show)
+    const favorites = useSelector(state => state?.favorite?.favorites)
+    const demarkeCore = useSelector(state => state?.demarkeCore?.value)
+    const movieService = demarkeCore.movieService
 
-    const count = useSelector(state => state.favorite.value)
-    const demarkeCore = useSelector(state => state.demarkeCore.value)
-    const dispatch = useDispatch()
+    const handleMenu = () => {
+        setVisibleSidebar(prev => !prev)
+    }
+
+    const handleOnSearch = async (value) => {
+        try {
+            setLoading(true)
+            setError(false)
+            let list = null
+            if(value === "") {
+                list = await movieService.getPopularMovies(value)
+            }
+            else {
+                list = await movieService.searchMovie(value)
+            }
+            setMovieList(list)
+            setLoading(false)
+        } catch (error) {
+            setLoading(false)
+            setError(true)
+        }
+    }
+
+    useEffect(() => {
+        handleOnSearch("")
+    }, []);
+
+    useEffect(() => {
+        if(showFavorites) {
+            setMovieList(favorites)
+        }
+        else {
+            setMovieList(null)
+        }
+    }, [showFavorites])
 
     return (
-        <div>
-            <Header />
-        <div class="max-w-sm rounded overflow-hidden shadow-lg">
-            <img class="w-full" src="/img/card-top.jpg" alt="Sunset in the mountains" />
-            <div class="px-6 py-4">
-            <div class="font-bold text-xl mb-2">The Coldest Sunset</div>
-            <p class="text-gray-700 text-base">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus quia, nulla! Maiores et perferendis eaque, exercitationem praesentium nihil.
-            </p>
-            </div>
-            <div class="px-6 pt-4 pb-2">
-            <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">#photography</span>
-            <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">#travel</span>
-            <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">#winter</span>
-            </div>
-        </div>
+        <div className='bg-secondary w-full h-full min-h-screen relative'>
+            <Error />
+            {loading && <Loading />}
+            <Header onSearch={handleOnSearch} onClickMenu={handleMenu} />
+            <Sidebar isVisible={visibleSidebar} onClick={handleMenu} />
+            <main className='min-h-full container mx-auto mt-5'>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {movieList && movieList.map(movie => (
+                        <Card key={movie.getId()} movie={movie} />
+                    ))}
+                </div>
+            </main>
       </div>
     )
 }

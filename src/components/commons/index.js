@@ -1,3 +1,8 @@
-import Header from "./Header";
+import Header from "./Header"
+import Card from './Card'
+import Sidebar from "./Sidebar"
+import FavoriteButton from "./FavoriteButton"
+import Loading from "./Loading"
+import Error from "./Error"
 
-export { Header }
+export { Header, Card, Sidebar, FavoriteButton, Loading, Error }
