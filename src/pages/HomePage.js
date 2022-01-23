@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { Header, Card, Sidebar, Loading, Error } from '../components/commons'
+import { Header, Card, Sidebar, Loading, Error, Empty } from '../components/commons'
 
 const HomePage = ({ }) => {
     const [visibleSidebar, setVisibleSidebar] = useState(false)
@@ -51,16 +51,17 @@ const HomePage = ({ }) => {
 
     return (
         <div className='bg-secondary w-full h-full min-h-screen relative'>
-            <Error />
             {loading && <Loading />}
             <Header onSearch={handleOnSearch} onClickMenu={handleMenu} />
             <Sidebar isVisible={visibleSidebar} onClick={handleMenu} />
-            <main className='min-h-full container mx-auto mt-5'>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {movieList && movieList.map(movie => (
+            <main className='min-h-full container mx-auto mt-5 flex justify-center'>
+                {error && <Error />}
+                {!error && movieList && <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {movieList.map(movie => (
                         <Card key={movie.getId()} movie={movie} />
                     ))}
-                </div>
+                </div>}
+                {!error && !loading && (!movieList || movieList.length === 0) && <Empty />}
             </main>
       </div>
     )
